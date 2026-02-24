@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>Liste des réservations</h1>
+            <a href="/dashboard" class="btn btn-outline">← Tableau de bord</a>
+        </div>
+
+        <% if (reservations && reservations.length > 0) { %>
+            <div class="filter-bar">
+                <select id="catwayFilter" class="form-control">
+                    <option value="">Tous les catways</option>
+                </select>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="reservationsTable">
+                    <thead>
+                        <tr>
+                            <th>Catway</th>
+                            <th>Client</th>
+                            <th>Bateau</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% reservations.forEach(res => { %>
+                            <tr data-catway="<%= res.catwayNumber %>">
+                                <td><strong>#<%= res.catwayNumber %></strong></td>
+                                <td><%= res.clientName %></td>
+                                <td><%= res.boatName %></td>
+                                <td><%= new Date(res.checkIn).toLocaleString('fr-FR') %></td>
+                                <td><%= new Date(res.checkOut).toLocaleString('fr-FR') %></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/reservations/<%= res._id %>" class="btn btn-sm btn-info">Détails</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-info">
+                <p>Total: <strong><%= reservations.length %></strong> réservations</p>
+            </div>
+
+            <!-- Script pour le filtre - VERSION FINALE CORRIGÉE -->
+            <script>
+                (function() {
+                    try {
+                        // Récupérer les données EJS - CORRIGÉ: utiliser une variable temporaire
+                        var reservationsData = <%- JSON.stringify(reservations) %>;
+                        
+                        // Vérifier que reservationsData est un tableau
+                        if (Array.isArray(reservationsData) && reservationsData.length > 0) {
+                            // Extraire les numéros de catway uniques
+                            var catwayNumbers = [];
+                            for (var i = 0; i < reservationsData.length; i++) {
+                                if (catwayNumbers.indexOf(reservationsData[i].catwayNumber) === -1) {
+                                    catwayNumbers.push(reservationsData[i].catwayNumber);
+                                }
+                            }
+                            
+                            var filter = document.getElementById('catwayFilter');
+                            if (!filter) return;
+                            
+                            // Vider les options existantes (sauf la première)
+                            while (filter.options.length > 1) {
+                                filter.remove(1);
+                            }
+                            
+                            // Trier les numéros
+                            catwayNumbers.sort(function(a, b) { return a - b; });
+                            
+                            // Remplir le filtre
+                            for (var j = 0; j < catwayNumbers.length; j++) {
+                                var num = catwayNumbers[j];
+                                var option = document.createElement('option');
+                                option.value = num;
+                                option.textContent = 'Catway #' + num;
+                                filter.appendChild(option);
+                            }
+
+                            // Filtrage
+                            filter.addEventListener('change', function() {
+                                var value = this.value;
+                                var rows = document.querySelectorAll('#reservationsTable tbody tr');
+                                
+                                for (var k = 0; k < rows.length; k++) {
+                                    var row = rows[k];
+                                    if (!value || row.dataset.catway === value) {
+                                        row.style.display = '';
+                                    } else {
+                                        row.style.display = 'none';
+                                    }
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Erreur dans le script des réservations:', error);
+                    }
+                })();
+            </script>
+        <% } else { %>
+            <div class="empty-state">
+                <p>Aucune réservation trouvée</p>
+                <a href="/dashboard" class="btn btn-primary">Créer une réservation</a>
+            </div>
+        <% } %>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

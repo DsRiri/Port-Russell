@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="/" class="logo">Port Russell</a>
+                <ul>
+                    <li><a href="/">Accueil</a></li>
+                    <li><a href="/catways">Catways</a></li>
+                    <li><a href="/reservations">Réservations</a></li>
+                    <li><a href="/documentation">Documentation</a></li>
+                    <li><a href="/logout">Déconnexion</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h1>Tableau de bord</h1>
+            <p>Bienvenue, <strong><%= user.name %></strong></p>
+        </div>
+
+        <!-- Messaggi di feedback -->
+        <% if (success) { %>
+            <div class="alert success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="alert error"><%= error %></div>
+        <% } %>
+
+        <div class="dashboard-grid">
+            <!-- ===== SECTION UTILISATEURS ===== -->
+            <section class="dashboard-section">
+                <h2>👤 Gestion des utilisateurs</h2>
+
+                <!-- Form per CREARE utente -->
+                <form id="createUserForm" class="form-card" style="margin-bottom: 2rem;">
+                    <h3>Créer un utilisateur</h3>
+                    <div class="form-group">
+                        <input type="text" id="userName" placeholder="Nom" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="userEmail" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="userPassword" placeholder="Mot de passe" required minlength="6">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" onclick="createUser()">Créer</button>
+                </form>
+
+                <!-- Form per ELIMINARE utente -->
+                <form id="deleteUserForm" class="form-card">
+                    <h3>Supprimer un utilisateur</h3>
+                    <div class="form-group">
+                        <input type="text" id="deleteUserId" placeholder="ID de l'utilisateur" required>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-block" onclick="deleteUser()">Supprimer</button>
+                </form>
+            </section>
+
+            <!-- ===== SECTION CATWAYS ===== -->
+            <section class="dashboard-section">
+                <h2>🚤 Gestion des catways</h2>
+
+                <!-- Form per CREARE catway -->
+                <form id="createCatwayForm" class="form-card">
+                    <h3>Créer un catway</h3>
+                    <div class="form-group">
+                        <input type="number" id="catwayNumber" placeholder="Numéro" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="catwayType" required>
+                            <option value="long">Long</option>
+                            <option value="short">Court</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="catwayState" placeholder="État" required></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" onclick="createCatway()">Créer</button>
+                </form>
+
+                <!-- Form per MODIFICARE stato catway -->
+                <form id="updateCatwayForm" class="form-card">
+                    <h3>Modifier l'état d'un catway</h3>
+                    <div class="form-group">
+                        <input type="text" id="updateCatwayId" placeholder="ID du catway" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="updateCatwayState" placeholder="Nouvel état" required></textarea>
+                    </div>
+                    <button type="button" class="btn btn-warning btn-block" onclick="updateCatway()">Modifier</button>
+                </form>
+
+                <!-- Form per ELIMINARE catway -->
+                <form id="deleteCatwayForm" class="form-card">
+                    <h3>Supprimer un catway</h3>
+                    <div class="form-group">
+                        <input type="text" id="deleteCatwayId" placeholder="ID du catway" required>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-block" onclick="deleteCatway()">Supprimer</button>
+                </form>
+            </section>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/catways" class="btn btn-secondary">Voir tous les catways</a>
+            <a href="/reservations" class="btn btn-secondary">Voir toutes les réservations</a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Port Russell</p>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // CONFIGURAZIONE TOKEN (dalla sessione)
+        // ============================================
+        const token = '<%= user ? "dummy" : "" %>';  // Il server passa un token fittizio
+        const API_BASE = '/api';
+
+        // ============================================
+        // FUNZIONI UTENTI
+        // ============================================
+        async function createUser() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+
+            if (!name || !email || !password) {
+                alert('Tous les champs sont requis');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    window.location.href = '/dashboard?success=Utilisateur créé avec succès';
+                } else {
+                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
+                }
+            } catch (err) {
+                window.location.href = '/dashboard?error=Erreur réseau';
+            }
+        }
+
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+            if (!userId) {
+                alert('ID requis');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    window.location.href = '/dashboard?success=Utilisateur supprimé';
+                } else {
+                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
+                }
+            } catch (err) {
+                window.location.href = '/dashboard?error=Erreur réseau';
+            }
+        }
+
+        // ============================================
+        // FUNZIONI CATWAYS
+        // ============================================
+        async function createCatway() {
+            const catwayNumber = parseInt(document.getElementById('catwayNumber').value);
+            const type = document.getElementById('catwayType').value;
+            const catwayState = document.getElementById('catwayState').value;
+
+            if (!catwayNumber || !type || !catwayState) {
+                alert('Tous les champs sont requis');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/catways`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ catwayNumber, type, catwayState })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    window.location.href = '/dashboard?success=Catway créé avec succès';
+                } else {
+                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
+                }
+            } catch (err) {
+                window.location.href = '/dashboard?error=Erreur réseau';
+            }
+        }
+
+        async function updateCatway() {
+            const catwayId = document.getElementById('updateCatwayId').value;
+            const catwayState = document.getElementById('updateCatwayState').value;
+
+            if (!catwayId || !catwayState) {
+                alert('Tous les champs sont requis');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/catways/${catwayId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ catwayState })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    window.location.href = '/dashboard?success=État du catway modifié';
+                } else {
+                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
+                }
+            } catch (err) {
+                window.location.href = '/dashboard?error=Erreur réseau';
+            }
+        }
+
+        async function deleteCatway() {
+            const catwayId = document.getElementById('deleteCatwayId').value;
+            if (!catwayId) {
+                alert('ID requis');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce catway ? Toutes ses réservations seront également supprimées.')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/catways/${catwayId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    window.location.href = '/dashboard?success=Catway supprimé';
+                } else {
+                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
+                }
+            } catch (err) {
+                window.location.href = '/dashboard?error=Erreur réseau';
+            }
+        }
+    </script>
+</body>
+</html>

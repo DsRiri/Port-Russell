@@ -1,0 +1,32 @@
+<nav class="sub-nav">
+    <div class="container">
+        <ul>
+            <li><a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'active' : '' %>">Dashboard</a></li>
+            <li><a href="/catways" class="<%= currentPath?.startsWith('/catways') ? 'active' : '' %>">Catways</a></li>
+            <li><a href="/reservations" class="<%= currentPath?.startsWith('/reservations') ? 'active' : '' %>">Réservations</a></li>
+        </ul>
+    </div>
+</nav>
+
+<style>
+.sub-nav {
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 0;
+}
+.sub-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+.sub-nav a {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+}
+.sub-nav a:hover, .sub-nav a.active {
+    color: #0B3B5C;
+    border-bottom-color: #0B3B5C;
+}
+</style>

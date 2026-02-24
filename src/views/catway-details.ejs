@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1><%= title %></h1>
+            <div class="header-actions">
+                <a href="/catways" class="btn btn-outline">← Tous les catways</a>
+                <a href="/dashboard" class="btn btn-outline">Tableau de bord</a>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2>Catway #<%= catway.catwayNumber %></h2>
+                <span class="badge badge-<%= catway.type %>">
+                    <%= catway.type === 'long' ? 'Long' : 'Court' %>
+                </span>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value"><%= catway._id %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Numéro:</span>
+                    <span class="detail-value"><%= catway.catwayNumber %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value"><%= catway.type %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">État:</span>
+                    <span class="detail-value"><%= catway.catwayState %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Créé le:</span>
+                    <span class="detail-value"><%= new Date(catway.createdAt).toLocaleString('fr-FR') %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Modifié le:</span>
+                    <span class="detail-value"><%= new Date(catway.updatedAt).toLocaleString('fr-FR') %></span>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <button onclick="showUpdateForm()" class="btn btn-warning">Modifier l'état</button>
+                <button onclick="showDeleteConfirm()" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+
+        <!-- Formulaire de modification (caché par défaut) -->
+        <div id="updateForm" class="update-form" style="display: none;">
+            <h3>Modifier l'état du catway</h3>
+            <form action="/api/catways/dashboard/update" method="POST">
+                <input type="hidden" name="catwayId" value="<%= catway._id %>">
+                <div class="form-group">
+                    <textarea name="catwayState" rows="4" required><%= catway.catwayState %></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" onclick="hideUpdateForm()" class="btn btn-outline">Annuler</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Confirmation de suppression -->
+        <div id="deleteConfirm" class="delete-confirm" style="display: none;">
+            <p>Êtes-vous sûr de vouloir supprimer ce catway ?</p>
+            <p class="warning">Cette action supprimera également toutes ses réservations.</p>
+            <form action="/api/catways/dashboard/delete" method="POST">
+                <input type="hidden" name="catwayId" value="<%= catway._id %>">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                    <button type="button" onclick="hideDeleteConfirm()" class="btn btn-outline">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function showUpdateForm() {
+            document.getElementById('updateForm').style.display = 'block';
+            document.getElementById('deleteConfirm').style.display = 'none';
+        }
+        function hideUpdateForm() {
+            document.getElementById('updateForm').style.display = 'none';
+        }
+        function showDeleteConfirm() {
+            document.getElementById('deleteConfirm').style.display = 'block';
+            document.getElementById('updateForm').style.display = 'none';
+        }
+        function hideDeleteConfirm() {
+            document.getElementById('deleteConfirm').style.display = 'none';
+        }
+    </script>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

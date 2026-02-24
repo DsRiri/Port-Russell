@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>Liste des catways</h1>
+            <a href="/dashboard" class="btn btn-outline">← Retour au tableau de bord</a>
+        </div>
+
+        <% if (catways && catways.length > 0) { %>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Rechercher par numéro..." class="form-control">
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="catwaysTable">
+                    <thead>
+                        <tr>
+                            <th>Numéro</th>
+                            <th>Type</th>
+                            <th>État</th>
+                            <th>Créé le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% catways.forEach(catway => { %>
+                            <tr>
+                                <td><strong>#<%= catway.catwayNumber %></strong></td>
+                                <td>
+                                    <span class="badge badge-<%= catway.type %>">
+                                        <%= catway.type === 'long' ? 'Long' : 'Court' %>
+                                    </span>
+                                </td>
+                                <td><%= catway.catwayState %></td>
+                                <td><%= new Date(catway.createdAt).toLocaleDateString('fr-FR') %></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/catways/<%= catway._id %>" class="btn btn-sm btn-info">Détails</a>
+                                        <a href="/catways/<%= catway._id %>/reservations" class="btn btn-sm btn-outline">Réservations</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-info">
+                <p>Total: <strong><%= catways.length %></strong> catways</p>
+                <p>Longs: <strong><%= catways.filter(c => c.type === 'long').length %></strong> | Courts: <strong><%= catways.filter(c => c.type === 'short').length %></strong></p>
+            </div>
+
+            <!-- Script de recherche - DÉPLACÉ À L'INTÉRIEUR DU BLOC -->
+            <script>
+                (function() {
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) {
+                        searchInput.addEventListener('keyup', function() {
+                            const searchValue = this.value.toLowerCase();
+                            const rows = document.querySelectorAll('#catwaysTable tbody tr');
+                            
+                            rows.forEach(row => {
+                                const number = row.cells[0].textContent.toLowerCase();
+                                if (number.includes(searchValue)) {
+                                    row.style.display = '';
+                                } else {
+                                    row.style.display = 'none';
+                                }
+                            });
+                        });
+                    }
+                })();
+            </script>
+        <% } else { %>
+            <div class="empty-state">
+                <p>Aucun catway trouvé</p>
+                <a href="/dashboard" class="btn btn-primary">Créer un catway</a>
+            </div>
+        <% } %>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container">
+        <div class="page-header">
+            <h1>Détails de la réservation</h1>
+            <div class="header-actions">
+                <a href="/reservations" class="btn btn-outline">← Toutes les réservations</a>
+                <a href="/dashboard" class="btn btn-outline">Tableau de bord</a>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-header">
+                <h2>Réservation pour <%= reservation.clientName %></h2>
+                <span class="badge">Catway #<%= reservation.catwayNumber %></span>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value"><%= reservation._id %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Catway:</span>
+                    <span class="detail-value">#<%= reservation.catwayNumber %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Client:</span>
+                    <span class="detail-value"><%= reservation.clientName %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Bateau:</span>
+                    <span class="detail-value"><%= reservation.boatName %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Début:</span>
+                    <span class="detail-value"><%= new Date(reservation.checkIn).toLocaleString('fr-FR') %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Fin:</span>
+                    <span class="detail-value"><%= new Date(reservation.checkOut).toLocaleString('fr-FR') %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Durée:</span>
+                    <span class="detail-value">
+                        <% 
+                            const start = new Date(reservation.checkIn);
+                            const end = new Date(reservation.checkOut);
+                            const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+                        %>
+                        <%= days %> jour(s)
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Créée le:</span>
+                    <span class="detail-value"><%= new Date(reservation.createdAt).toLocaleString('fr-FR') %></span>
+                </div>
+            </div>
+
+            <div class="detail-actions">
+                <button onclick="showDeleteConfirm()" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+
+        <!-- Confirmation de suppression -->
+        <div id="deleteConfirm" class="delete-confirm" style="display: none;">
+            <p>Êtes-vous sûr de vouloir supprimer cette réservation ?</p>
+            <form action="/api/catways/dashboard/delete" method="POST">
+                <input type="hidden" name="reservationId" value="<%= reservation._id %>">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                    <button type="button" onclick="hideDeleteConfirm()" class="btn btn-outline">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function showDeleteConfirm() {
+            document.getElementById('deleteConfirm').style.display = 'block';
+        }
+        function hideDeleteConfirm() {
+            document.getElementById('deleteConfirm').style.display = 'none';
+        }
+    </script>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

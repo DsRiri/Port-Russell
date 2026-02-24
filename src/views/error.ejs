@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="error-page">
+        <div class="error-content">
+            <h1>⚠️ Erreur</h1>
+            <h2><%= message %></h2>
+            <% if (error && error.stack) { %>
+                <pre class="error-stack"><%= error.stack %></pre>
+            <% } %>
+            <div class="error-actions">
+                <a href="javascript:history.back()" class="btn btn-outline">← Retour</a>
+                <a href="/" class="btn btn-primary">Accueil</a>
+            </div>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

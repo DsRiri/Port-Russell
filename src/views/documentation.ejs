@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+    
+    <main class="container doc-container">
+        <h1>Documentation de l'API Port Russell</h1>
+        
+        <div class="doc-toc">
+            <h3>Sommaire</h3>
+            <ul>
+                <li><a href="#overview">📋 Vue d'ensemble</a></li>
+                <li><a href="#auth">🔐 Authentification</a></li>
+                <li><a href="#catways">🚤 Catways</a></li>
+                <li><a href="#reservations">📅 Réservations</a></li>
+                <li><a href="#users">👤 Utilisateurs</a></li>
+                <li><a href="#tutorial">📚 Tutoriel</a></li>
+                <li><a href="#examples">💡 Exemples</a></li>
+                <li><a href="#glossary">📖 Glossaire</a></li>
+            </ul>
+        </div>
+
+        <section id="overview" class="doc-section">
+            <h2>📋 Vue d'ensemble</h2>
+            <p>API privée pour la gestion des catways et réservations du Port de Plaisance Russell.</p>
+            
+            <div class="doc-info-box">
+                <h4>Informations générales</h4>
+                <ul>
+                    <li><strong>Base URL:</strong> <code>http://localhost:3000/api</code></li>
+                    <li><strong>Format des réponses:</strong> JSON</li>
+                    <li><strong>Authentification:</strong> JWT (Bearer token)</li>
+                    <li><strong>Documentation:</strong> <code>/documentation</code></li>
+                </ul>
+            </div>
+
+            <h4>Codes de statut HTTP</h4>
+            <table class="doc-table">
+                <tr><th>Code</th><th>Description</th></tr>
+                <tr><td>200</td><td>Succès</td></tr>
+                <tr><td>201</td><td>Créé avec succès</td></tr>
+                <tr><td>400</td><td>Erreur de validation</td></tr>
+                <tr><td>401</td><td>Non authentifié</td></tr>
+                <tr><td>403</td><td>Non autorisé</td></tr>
+                <tr><td>404</td><td>Ressource non trouvée</td></tr>
+                <tr><td>500</td><td>Erreur serveur</td></tr>
+            </table>
+        </section>
+
+        <section id="auth" class="doc-section">
+            <h2>🔐 Authentification</h2>
+            
+            <h3>POST /login</h3>
+            <p>Connexion utilisateur et obtention du token JWT</p>
+            
+            <h4>Body (x-www-form-urlencoded ou JSON)</h4>
+            <pre><code class="language-json">{
+    "email": "capitainerie@port-russell.fr",
+    "password": "PortRussell2026"
+}</code></pre>
+
+            <h4>Réponse (succès)</h4>
+            <pre><code class="language-json">{
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": {
+        "id": "65a1b2c3d4e5f67890123456",
+        "name": "Capitainerie",
+        "email": "capitainerie@port-russell.fr"
+    }
+}</code></pre>
+
+            <h4>Réponse (erreur)</h4>
+            <pre><code class="language-json">{
+    "success": false,
+    "error": "Email ou mot de passe incorrect"
+}</code></pre>
+
+            <h3>GET /logout</h3>
+            <p>Déconnexion (détruit la session)</p>
+        </section>
+
+        <section id="catways" class="doc-section">
+            <h2>🚤 Catways</h2>
+            <p class="doc-note">Toutes les routes sont protégées : nécessitent le token JWT dans le header <code>Authorization: Bearer &lt;token&gt;</code></p>
+
+            <table class="doc-table">
+                <tr>
+                    <th>Méthode</th>
+                    <th>Route</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/catways</code></td>
+                    <td>Lister tous les catways</td>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/catways/:id</code></td>
+                    <td>Récupérer les détails d'un catway</td>
+                </tr>
+                <tr>
+                    <td><span class="method-post">POST</span></td>
+                    <td><code>/catways</code></td>
+                    <td>Créer un nouveau catway</td>
+                </tr>
+                <tr>
+                    <td><span class="method-put">PUT</span></td>
+                    <td><code>/catways/:id</code></td>
+                    <td>Remplacer complètement un catway</td>
+                </tr>
+                <tr>
+                    <td><span class="method-patch">PATCH</span></td>
+                    <td><code>/catways/:id</code></td>
+                    <td>Modifier partiellement un catway</td>
+                </tr>
+                <tr>
+                    <td><span class="method-delete">DELETE</span></td>
+                    <td><code>/catways/:id</code></td>
+                    <td>Supprimer un catway</td>
+                </tr>
+            </table>
+
+            <h4>Modèle Catway</h4>
+            <pre><code class="language-json">{
+    "_id": "65a1b2c3d4e5f67890123456",
+    "catwayNumber": 5,
+    "type": "long",
+    "catwayState": "Bon état, peinture récente",
+    "createdAt": "2026-02-24T10:00:00Z",
+    "updatedAt": "2026-02-24T10:00:00Z"
+}</code></pre>
+
+            <h4>Création d'un catway (POST)</h4>
+            <pre><code class="language-json">{
+    "catwayNumber": 10,
+    "type": "short",
+    "catwayState": "Neuf, installation 2026"
+}</code></pre>
+        </section>
+
+        <section id="reservations" class="doc-section">
+            <h2>📅 Réservations</h2>
+            <p class="doc-note">Les réservations sont des sous-ressources des catways</p>
+
+            <table class="doc-table">
+                <tr>
+                    <th>Méthode</th>
+                    <th>Route</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/catways/:id/reservations</code></td>
+                    <td>Lister les réservations d'un catway</td>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/catways/:id/reservations/:idReservation</code></td>
+                    <td>Détails d'une réservation spécifique</td>
+                </tr>
+                <tr>
+                    <td><span class="method-post">POST</span></td>
+                    <td><code>/catways/:id/reservations</code></td>
+                    <td>Créer une réservation</td>
+                </tr>
+                <tr>
+                    <td><span class="method-delete">DELETE</span></td>
+                    <td><code>/catways/:id/reservations/:idReservation</code></td>
+                    <td>Supprimer une réservation</td>
+                </tr>
+            </table>
+
+            <h4>Modèle Réservation</h4>
+            <pre><code class="language-json">{
+    "_id": "65a1b2c3d4e5f67890123457",
+    "catwayNumber": 5,
+    "clientName": "Jean Dupont",
+    "boatName": "Sea Breeze",
+    "checkIn": "2026-03-15T10:00:00Z",
+    "checkOut": "2026-03-22T10:00:00Z",
+    "createdAt": "2026-02-24T10:00:00Z",
+    "updatedAt": "2026-02-24T10:00:00Z"
+}</code></pre>
+        </section>
+
+        <section id="users" class="doc-section">
+            <h2>👤 Utilisateurs</h2>
+
+            <table class="doc-table">
+                <tr>
+                    <th>Méthode</th>
+                    <th>Route</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/users</code></td>
+                    <td>Lister tous les utilisateurs</td>
+                </tr>
+                <tr>
+                    <td><span class="method-get">GET</span></td>
+                    <td><code>/users/:id</code></td>
+                    <td>Détails d'un utilisateur</td>
+                </tr>
+                <tr>
+                    <td><span class="method-post">POST</span></td>
+                    <td><code>/users</code></td>
+                    <td>Créer un utilisateur</td>
+                </tr>
+                <tr>
+                    <td><span class="method-put">PUT</span></td>
+                    <td><code>/users/:id</code></td>
+                    <td>Modifier un utilisateur</td>
+                </tr>
+                <tr>
+                    <td><span class="method-delete">DELETE</span></td>
+                    <td><code>/users/:id</code></td>
+                    <td>Supprimer un utilisateur</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="tutorial" class="doc-section">
+            <h2>📚 Tutoriel pas à pas</h2>
+
+            <h3>1. Connexion</h3>
+            <pre><code class="language-bash">curl -X POST http://localhost:3000/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"capitainerie@port-russell.fr","password":"PortRussell2026"}'</code></pre>
+
+            <h3>2. Récupérer le token</h3>
+            <p>La réponse contient le token JWT à utiliser pour les requêtes suivantes.</p>
+
+            <h3>3. Créer un catway</h3>
+            <pre><code class="language-bash">curl -X POST http://localhost:3000/api/catways \
+  -H "Authorization: Bearer VOTRE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"catwayNumber":10,"type":"long","catwayState":"Neuf"}'</code></pre>
+
+            <h3>4. Créer une réservation</h3>
+            <pre><code class="language-bash">curl -X POST http://localhost:3000/api/catways/ID_CATWAY/reservations \
+  -H "Authorization: Bearer VOTRE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"clientName":"Jean Dupont","boatName":"Sea Breeze","checkIn":"2026-05-01T10:00:00Z","checkOut":"2026-05-08T10:00:00Z"}'</code></pre>
+
+            <h3>5. Utiliser le dashboard</h3>
+            <p>Connectez-vous sur <a href="/login">/login</a> pour accéder au tableau de bord avec tous les formulaires.</p>
+        </section>
+
+        <section id="examples" class="doc-section">
+            <h2>💡 Exemples d'utilisation</h2>
+
+            <h3>Avec JavaScript (fetch)</h3>
+            <pre><code class="language-javascript">// Connexion
+const login = async () => {
+    const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email: 'capitainerie@port-russell.fr',
+            password: 'PortRussell2026'
+        })
+    });
+    const data = await res.json();
+    localStorage.setItem('token', data.token);
+};
+
+// Créer un catway
+const createCatway = async () => {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/catways', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            catwayNumber: 15,
+            type: 'short',
+            catwayState: 'Bon état'
+        })
+    });
+    return await res.json();
+};</code></pre>
+
+            <h3>Avec Postman</h3>
+            <ol>
+                <li>Créez une requête POST vers <code>http://localhost:3000/login</code></li>
+                <li>Body → raw → JSON avec email/password</li>
+                <li>Copiez le token de la réponse</li>
+                <li>Pour chaque requête API, ajoutez le header:
+                    <code>Authorization: Bearer &lt;token&gt;</code>
+                </li>
+            </ol>
+        </section>
+
+        <section id="glossary" class="doc-section">
+            <h2>📖 Glossaire</h2>
+
+            <dl class="glossary">
+                <dt>Catway</dt>
+                <dd>Petit appontement pour amarrer un bateau. Peut être de type "long" ou "short".</dd>
+
+                <dt>Réservation</dt>
+                <dd>Période durant laquelle un bateau occupe un catway spécifique.</dd>
+
+                <dt>JWT (JSON Web Token)</dt>
+                <dd>Jeton d'authentification permettant d'accéder aux routes protégées.</dd>
+
+                <dt>CheckIn / CheckOut</dt>
+                <dd>Dates de début et fin de réservation au format ISO (ex: 2026-03-15T10:00:00Z).</dd>
+
+                <dt>Middleware</dt>
+                <dd>Fonction qui s'exécute avant les routes pour vérifier l'authentification.</dd>
+
+                <dt>CRUD</dt>
+                <dd>Create, Read, Update, Delete - Les 4 opérations de base.</dd>
+            </dl>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>

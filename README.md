@@ -35,8 +35,8 @@ Cette API permet à la capitainerie du Port Russell de gérer les catways (petit
 ## 🌐 Déploiement
 
 - **Application**: https://port-russell-u12i.onrender.com 
-- **Documentation**: https://port-russell-api.onrender.com/documentation
-- **GitHub**: https://github.com/ton-username/port-russell-api
+- **Documentation**: https://port-russell-u12i.onrender.com/documentation 
+- **GitHub**: https://github.com/DsRiri/Port-Russell
 
 ## 🛠️ Technologies
 

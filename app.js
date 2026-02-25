@@ -35,9 +35,7 @@ mongoose.connect(process.env.MONGODB_URI)
   });
 
 // Middlewares de sécurité
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(cors({
   origin: ['http://localhost:3000'],
@@ -85,15 +83,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Route pour obtenir le token depuis la session
+app.get('/api/token', (req, res) => {
+  if (req.session && req.session.token) {
+    res.json({ token: req.session.token });
+  } else {
+    res.json({ token: null });
+  }
+});
+
+// Routes API
 app.use('/', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/catways', catwayRoutes);
-app.use('/api/catways', reservationRoutes);
+app.use('/api/catways', reservationRoutes); // <-- QUESTA È LA RIGA GIUSTA
 
 // Pages web
 app.get('/documentation', (req, res) => {
-  res.render('documentation', { title: 'Documentation' });
+  res.render('documentation', { title: 'Documentation API - Port Russell' });
 });
 
 app.get('/dashboard', isAuthenticated, (req, res) => {
@@ -145,8 +152,6 @@ app.get('/reservations/:id', isAuthenticated, async (req, res) => {
     res.status(404).render('error', { message: error.message });
   }
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 // 404
 app.use(notFound);

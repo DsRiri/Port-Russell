@@ -1,22 +1,20 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-async function createAdmin() {
+async function createAdminNow() {
   try {
-    console.log('🔄 Connessione a MongoDB...');
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect('mongodb://127.0.0.1:27017/port_russell');
     console.log('✅ Connesso a MongoDB');
 
     const User = require('../src/models/User');
 
-    // Rimuovi vecchio admin se esiste
-    await User.deleteOne({ email: 'capitainerie@port-russell.fr' });
-    console.log('🧹 Vecchio admin rimosso');
+    // Elimina eventuali admin esistenti
+    await User.deleteMany({ email: 'capitainerie@port-russell.fr' });
 
-    // Crea nuovo admin con password hashata
+    // Hash FRESCO della password "PortRussell2026"
     const hashedPassword = await bcrypt.hash('PortRussell2026', 10);
+    console.log('🔐 Nuovo hash generato:', hashedPassword);
+
     const admin = new User({
       name: 'Capitainerie',
       email: 'capitainerie@port-russell.fr',
@@ -24,17 +22,15 @@ async function createAdmin() {
     });
 
     await admin.save();
-    console.log('\n✅ ADMIN CREATO CON SUCCESSO!');
+    console.log('✅ Admin creato con successo!');
     console.log('📧 Email   : capitainerie@port-russell.fr');
     console.log('🔑 Password: PortRussell2026');
-    console.log('🔒 Hash    :', hashedPassword);
 
-  } catch (error) {
-    console.error('❌ ERRORE:', error.message);
+  } catch (err) {
+    console.error('❌ Errore:', err);
   } finally {
     await mongoose.disconnect();
-    console.log('👋 Disconnesso da MongoDB');
   }
 }
 
-createAdmin();
+createAdminNow();

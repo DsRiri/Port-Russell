@@ -29,7 +29,6 @@
             <p>Bienvenue, <strong><%= user.name %></strong></p>
         </div>
 
-        <!-- Messaggi di feedback -->
         <% if (success) { %>
             <div class="alert success"><%= success %></div>
         <% } %>
@@ -38,12 +37,12 @@
         <% } %>
 
         <div class="dashboard-grid">
-            <!-- ===== SECTION UTILISATEURS ===== -->
+            <!-- SECTION UTILISATEURS -->
             <section class="dashboard-section">
                 <h2>👤 Gestion des utilisateurs</h2>
 
-                <!-- Form per CREARE utente -->
-                <form id="createUserForm" class="form-card" style="margin-bottom: 2rem;">
+                <!-- CREER utilisateur -->
+                <div class="form-card">
                     <h3>Créer un utilisateur</h3>
                     <div class="form-group">
                         <input type="text" id="userName" placeholder="Nom" required>
@@ -55,24 +54,24 @@
                         <input type="password" id="userPassword" placeholder="Mot de passe" required minlength="6">
                     </div>
                     <button type="button" class="btn btn-primary btn-block" onclick="createUser()">Créer</button>
-                </form>
+                </div>
 
-                <!-- Form per ELIMINARE utente -->
-                <form id="deleteUserForm" class="form-card">
+                <!-- SUPPRIMER utilisateur -->
+                <div class="form-card">
                     <h3>Supprimer un utilisateur</h3>
                     <div class="form-group">
                         <input type="text" id="deleteUserId" placeholder="ID de l'utilisateur" required>
                     </div>
                     <button type="button" class="btn btn-danger btn-block" onclick="deleteUser()">Supprimer</button>
-                </form>
+                </div>
             </section>
 
-            <!-- ===== SECTION CATWAYS ===== -->
+            <!-- SECTION CATWAYS -->
             <section class="dashboard-section">
                 <h2>🚤 Gestion des catways</h2>
 
-                <!-- Form per CREARE catway -->
-                <form id="createCatwayForm" class="form-card">
+                <!-- CREER catway -->
+                <div class="form-card">
                     <h3>Créer un catway</h3>
                     <div class="form-group">
                         <input type="number" id="catwayNumber" placeholder="Numéro" required>
@@ -87,10 +86,10 @@
                         <textarea id="catwayState" placeholder="État" required></textarea>
                     </div>
                     <button type="button" class="btn btn-primary btn-block" onclick="createCatway()">Créer</button>
-                </form>
+                </div>
 
-                <!-- Form per MODIFICARE stato catway -->
-                <form id="updateCatwayForm" class="form-card">
+                <!-- MODIFIER état catway -->
+                <div class="form-card">
                     <h3>Modifier l'état d'un catway</h3>
                     <div class="form-group">
                         <input type="text" id="updateCatwayId" placeholder="ID du catway" required>
@@ -99,16 +98,16 @@
                         <textarea id="updateCatwayState" placeholder="Nouvel état" required></textarea>
                     </div>
                     <button type="button" class="btn btn-warning btn-block" onclick="updateCatway()">Modifier</button>
-                </form>
+                </div>
 
-                <!-- Form per ELIMINARE catway -->
-                <form id="deleteCatwayForm" class="form-card">
+                <!-- SUPPRIMER catway -->
+                <div class="form-card">
                     <h3>Supprimer un catway</h3>
                     <div class="form-group">
                         <input type="text" id="deleteCatwayId" placeholder="ID du catway" required>
                     </div>
                     <button type="button" class="btn btn-danger btn-block" onclick="deleteCatway()">Supprimer</button>
-                </form>
+                </div>
             </section>
         </div>
 
@@ -125,15 +124,21 @@
     </footer>
 
     <script>
-        // ============================================
-        // CONFIGURAZIONE TOKEN (dalla sessione)
-        // ============================================
-        const token = '<%= user ? "dummy" : "" %>';  // Il server passa un token fittizio
+        // Récupération du token depuis la session
+        async function getToken() {
+            try {
+                const res = await fetch('/api/token', { credentials: 'include' });
+                const data = await res.json();
+                return data.token || '';
+            } catch (err) {
+                console.error('Erreur token:', err);
+                return '';
+            }
+        }
+
         const API_BASE = '/api';
 
-        // ============================================
-        // FUNZIONI UTENTI
-        // ============================================
+        // ===== UTILISATEURS =====
         async function createUser() {
             const name = document.getElementById('userName').value;
             const email = document.getElementById('userEmail').value;
@@ -145,6 +150,7 @@
             }
 
             try {
+                const token = await getToken();
                 const res = await fetch(`${API_BASE}/users`, {
                     method: 'POST',
                     headers: {
@@ -155,11 +161,9 @@
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    window.location.href = '/dashboard?success=Utilisateur créé avec succès';
-                } else {
-                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
-                }
+                window.location.href = result.success 
+                    ? '/dashboard?success=Utilisateur créé'
+                    : '/dashboard?error=' + encodeURIComponent(result.error);
             } catch (err) {
                 window.location.href = '/dashboard?error=Erreur réseau';
             }
@@ -167,35 +171,26 @@
 
         async function deleteUser() {
             const userId = document.getElementById('deleteUserId').value;
-            if (!userId) {
-                alert('ID requis');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+            if (!userId) return alert('ID requis');
+            if (!confirm('Supprimer cet utilisateur ?')) return;
 
             try {
+                const token = await getToken();
                 const res = await fetch(`${API_BASE}/users/${userId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    window.location.href = '/dashboard?success=Utilisateur supprimé';
-                } else {
-                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
-                }
+                window.location.href = result.success
+                    ? '/dashboard?success=Utilisateur supprimé'
+                    : '/dashboard?error=' + encodeURIComponent(result.error);
             } catch (err) {
                 window.location.href = '/dashboard?error=Erreur réseau';
             }
         }
 
-        // ============================================
-        // FUNZIONI CATWAYS
-        // ============================================
+        // ===== CATWAYS =====
         async function createCatway() {
             const catwayNumber = parseInt(document.getElementById('catwayNumber').value);
             const type = document.getElementById('catwayType').value;
@@ -207,6 +202,7 @@
             }
 
             try {
+                const token = await getToken();
                 const res = await fetch(`${API_BASE}/catways`, {
                     method: 'POST',
                     headers: {
@@ -217,11 +213,9 @@
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    window.location.href = '/dashboard?success=Catway créé avec succès';
-                } else {
-                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
-                }
+                window.location.href = result.success
+                    ? '/dashboard?success=Catway créé'
+                    : '/dashboard?error=' + encodeURIComponent(result.error);
             } catch (err) {
                 window.location.href = '/dashboard?error=Erreur réseau';
             }
@@ -237,6 +231,7 @@
             }
 
             try {
+                const token = await getToken();
                 const res = await fetch(`${API_BASE}/catways/${catwayId}`, {
                     method: 'PATCH',
                     headers: {
@@ -247,11 +242,9 @@
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    window.location.href = '/dashboard?success=État du catway modifié';
-                } else {
-                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
-                }
+                window.location.href = result.success
+                    ? '/dashboard?success=État modifié'
+                    : '/dashboard?error=' + encodeURIComponent(result.error);
             } catch (err) {
                 window.location.href = '/dashboard?error=Erreur réseau';
             }
@@ -259,27 +252,20 @@
 
         async function deleteCatway() {
             const catwayId = document.getElementById('deleteCatwayId').value;
-            if (!catwayId) {
-                alert('ID requis');
-                return;
-            }
-
-            if (!confirm('Êtes-vous sûr de vouloir supprimer ce catway ? Toutes ses réservations seront également supprimées.')) return;
+            if (!catwayId) return alert('ID requis');
+            if (!confirm('Supprimer ce catway ? Toutes ses réservations seront supprimées.')) return;
 
             try {
+                const token = await getToken();
                 const res = await fetch(`${API_BASE}/catways/${catwayId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 const result = await res.json();
-                if (result.success) {
-                    window.location.href = '/dashboard?success=Catway supprimé';
-                } else {
-                    window.location.href = '/dashboard?error=' + encodeURIComponent(result.error);
-                }
+                window.location.href = result.success
+                    ? '/dashboard?success=Catway supprimé'
+                    : '/dashboard?error=' + encodeURIComponent(result.error);
             } catch (err) {
                 window.location.href = '/dashboard?error=Erreur réseau';
             }

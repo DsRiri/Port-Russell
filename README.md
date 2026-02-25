@@ -46,15 +46,6 @@ Cette API permet à la capitainerie du Port Russell de gérer les catways (petit
 - EJS / CSS
 - Mocha / Chai
 
-## 📝 Grille d'évaluation - 20/20
-
-| Catégorie | Points |
-|-----------|--------|
-| Application (structure, pages, connexion, tests, doc) | 12/12 |
-| Catway (CRUD, routes privatisées) | 3/3 |
-| Réservation (CRUD, routes privatisées) | 3/3 |
-| Compte utilisateur (CRUD, routes privatisées) | 2/2 |
-| **TOTAL** | **20/20** |
 
 ## 🚀 Installation
 
